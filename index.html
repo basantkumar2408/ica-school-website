@@ -981,7 +981,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.6);padding:52px 0 24px;}
 <script>
 const API='/.netlify/functions/api';
 const ADM_API='/.netlify/functions/api';
-let _adminToken=null;
+let _adminToken = localStorage.getItem('adminToken');
 async function call(ep,action,method,body){
   const o={method:method||'GET',headers:{'Content-Type':'application/json'}};
   if(_adminToken)o.headers['x-admin-token']=_adminToken;
