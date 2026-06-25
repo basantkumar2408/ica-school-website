@@ -17,9 +17,17 @@ function cors(body, status) {
   };
 }
 
-function isAdmin(headers) {
-  const t = headers['x-admin-token'] || headers['X-Admin-Token'] || '';
-  return ADMIN_TOKEN && t === ADMIN_TOKEN;
+function isAdmin(headers = {}) {
+  const t =
+    headers['x-admin-token'] ||
+    headers['X-Admin-Token'] ||
+    headers['x_admin_token'] ||
+    '';
+
+  console.log('Received Token:', t);
+  console.log('Server Token:', ADMIN_TOKEN);
+
+  return String(t).trim() === String(ADMIN_TOKEN).trim();
 }
 
 function sb() {
@@ -27,11 +35,30 @@ function sb() {
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return cors({});
+
+  console.log("HEADERS:", event.headers);
+  console.log("ADMIN_TOKEN:", ADMIN_TOKEN);
+
+  if (event.httpMethod === 'OPTIONS')
+    return cors({});
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
-    return cors({ success: false, error: 'Server not configured. Please set environment variables.' }, 500);
+    return cors(
+      {
+        success: false,
+        error: 'Server not configured. Please set environment variables.'
+      },
+      500
+    );
   }
+
+  const action =
+    event.queryStringParameters &&
+    event.queryStringParameters.action || '';
+
+  console.log("ACTION:", action);
+
+}
 
   const action = event.queryStringParameters && event.queryStringParameters.action || '';
   const method = event.httpMethod;
