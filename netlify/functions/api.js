@@ -21,13 +21,12 @@ function isAdmin(headers = {}) {
   const t =
     headers['x-admin-token'] ||
     headers['X-Admin-Token'] ||
-    headers['x_admin_token'] ||
     '';
 
-  console.log('Received Token:', t);
-  console.log('Server Token:', ADMIN_TOKEN);
+  console.log("CLIENT TOKEN:", t);
+  console.log("SERVER TOKEN:", ADMIN_TOKEN);
 
-  return String(t).trim() === String(ADMIN_TOKEN).trim();
+  return ADMIN_TOKEN && t === ADMIN_TOKEN;
 }
 
 function sb() {
@@ -57,10 +56,6 @@ exports.handler = async (event) => {
     event.queryStringParameters.action || '';
 
   console.log("ACTION:", action);
-
-}
-
-  const action = event.queryStringParameters && event.queryStringParameters.action || '';
   const method = event.httpMethod;
   let body = {};
   try { body = JSON.parse(event.body || '{}'); } catch(e) {}
