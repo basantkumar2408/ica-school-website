@@ -1,15 +1,15 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL  = process.env.SUPABASE_URL;
-const SUPABASE_KEY  = process.env.SUPABASE_SERVICE_KEY;
-const ADMIN_TOKEN   = process.env.ADMIN_TOKEN;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
 
 function cors(body, status) {
   return {
     statusCode: status || 200,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, x-admin-token',
       'Content-Type': 'application/json'
     },
