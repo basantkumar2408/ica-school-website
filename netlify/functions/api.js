@@ -154,9 +154,6 @@ exports.handler = async (event) => {
 
     // ── PUBLIC: Submit admission ──
     // ── PUBLIC: Submit enquiry ──
-    console.log("PHOTO:", body.photo_url ? body.photo_url.length : 0);
-console.log("BIRTH:", body.doc_birth_cert ? body.doc_birth_cert.length : 0);
-console.log("MARKSHEET:", body.doc_marksheet ? body.doc_marksheet.length : 0);
     if (action === 'submit_enquiry' && method === 'POST') {
       const { parent_name, child_name, phone, class: cls, area, enquiry_type, message } = body;
       if (!parent_name || !child_name || !phone || !cls) {
