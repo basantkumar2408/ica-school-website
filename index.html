@@ -1209,29 +1209,56 @@ async function submitAdmission(){
   const ms=await toB64(document.getElementById('up_marksheet').files[0]);
   const tc=await toB64(document.getElementById('up_tc').files[0]);
   const aa=await toB64(document.getElementById('up_aadhaar').files[0]);
-  const payload={
-    student_name:g('a_student_name'),dob:g('a_dob'),gender:g('a_gender'),
-    applying_class:g('a_applying_class'),blood_group:g('a_blood_group'),
-    religion:g('a_religion'),category:g('a_category'),aadhaar:g('a_aadhaar'),
-    nationality:g('a_nationality'),
-    father_name:g('a_father_name'),father_occupation:g('a_father_occupation'),
-    father_phone:g('a_father_phone'),father_email:g('a_father_email'),
-    mother_name:g('a_mother_name'),mother_occupation:g('a_mother_occupation'),
-    mother_phone:g('a_mother_phone'),contact_phone:g('a_contact_phone'),
-    family_income:g('a_family_income'),
-    previous_school:g('a_previous_school'),previous_class:g('a_previous_class'),
-    previous_percent:g('a_previous_percent'),passing_year:g('a_passing_year'),
-    medium:g('a_medium'),achievements:g('a_achievements'),medical:g('a_medical'),
-    address:g('a_address'),village:g('a_village'),block:g('a_block'),
-    district:g('a_district'),state:g('a_state'),pincode:g('a_pincode'),
-    distance:g('a_distance'),transport:g('a_transport'),
-    emergency_contact:g('a_emergency_contact'),
-    photo_url:ph?'[Photo Uploaded]':'',
-    doc_birth_cert:bc?'[Uploaded]':'',
-    doc_marksheet:ms?'[Uploaded]':'',
-    doc_tc:tc?'[Uploaded]':'',
-    doc_aadhaar:aa?'[Uploaded]':'',
-  };
+  const payload = {
+  student_name: g('a_student_name'),
+  dob: g('a_dob'),
+  gender: g('a_gender'),
+  applying_class: g('a_applying_class'),
+  blood_group: g('a_blood_group'),
+  religion: g('a_religion'),
+  category: g('a_category'),
+  aadhaar: g('a_aadhaar'),
+  nationality: g('a_nationality'),
+
+  father_name: g('a_father_name'),
+  father_occupation: g('a_father_occupation'),
+  father_phone: g('a_father_phone'),
+  father_email: g('a_father_email'),
+
+  mother_name: g('a_mother_name'),
+  mother_occupation: g('a_mother_occupation'),
+  mother_phone: g('a_mother_phone'),
+
+  contact_phone: g('a_contact_phone'),
+  family_income: g('a_family_income'),
+
+  previous_school: g('a_previous_school'),
+  previous_class: g('a_previous_class'),
+  previous_percent: g('a_previous_percent'),
+  passing_year: g('a_passing_year'),
+
+  medium: g('a_medium'),
+  achievements: g('a_achievements'),
+  medical: g('a_medical'),
+
+  address: g('a_address'),
+  village: g('a_village'),
+  block: g('a_block'),
+  district: g('a_district'),
+  state: g('a_state'),
+  pincode: g('a_pincode'),
+
+  distance: g('a_distance'),
+  transport: g('a_transport'),
+  emergency_contact: g('a_emergency_contact'),
+
+  // Documents (Base64 data)
+  photo_url: ph,
+  doc_birth_cert: bc,
+  doc_marksheet: ms,
+  doc_tc: tc,
+  doc_aadhaar: aa
+};
   try{
     const r=await adm('submit_admission','POST',payload);
     hideLoading();

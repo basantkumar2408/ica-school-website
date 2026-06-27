@@ -178,68 +178,52 @@ exports.handler = async (event) => {
       // Folder name for this applicant's documents
       const folderSlug = (body.student_name || 'student').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) + '-' + Date.now();
 
-      // Upload all documents to Supabase Storage (only if provided)
-      const [photoUrl, birthUrl, markUrl, tcUrl, aadUrl] = await Promise.all([
-        uploadDoc(body.photo_url, folderSlug, 'photo'),
-        uploadDoc(body.doc_birth_cert, folderSlug, 'birth_cert'),
-        uploadDoc(body.doc_marksheet, folderSlug, 'marksheet'),
-        uploadDoc(body.doc_tc, folderSlug, 'tc'),
-        uploadDoc(body.doc_aadhaar, folderSlug, 'aadhaar')
-      ]);
-
       const { data, error } = await db.from('ica_admissions').insert({
-        student_name: body.student_name || '',
-        dob: body.dob || '',
-        gender: body.gender || '',
-        applying_class: body.applying_class || '',
-        blood_group: body.blood_group || '',
-        religion: body.religion || '',
-        category: body.category || '',
-        aadhaar: body.aadhaar || '',
-        nationality: body.nationality || 'Indian',
-        father_name: body.father_name || '',
-        father_occupation: body.father_occupation || '',
-        father_phone: body.father_phone || '',
-        father_email: body.father_email || '',
-        mother_name: body.mother_name || '',
-        mother_occupation: body.mother_occupation || '',
-        mother_phone: body.mother_phone || '',
-        contact_phone: body.contact_phone || '',
-        family_income: body.family_income || '',
-        previous_school: body.previous_school || '',
-        previous_class: body.previous_class || '',
-        previous_percent: body.previous_percent || '',
-        passing_year: body.passing_year || '',
-        medium: body.medium || '',
-        achievements: body.achievements || '',
-        medical: body.medical || '',
-        address: body.address || '',
-        village: body.village || '',
-        block: body.block || '',
-        district: body.district || '',
-        state: body.state || '',
-        pincode: body.pincode || '',
-        distance: body.distance || '',
-        transport: body.transport || '',
-        emergency_contact: body.emergency_contact || '',
-        photo_url: photoUrl ? '[Photo Uploaded]' : '',
-        doc_birth_cert: birthUrl ? '[Uploaded]' : '',
-        doc_marksheet: markUrl ? '[Uploaded]' : '',
-        doc_tc: tcUrl ? '[Uploaded]' : '',
-        doc_aadhaar: aadUrl ? '[Uploaded]' : '',
-        photo_file_url: photoUrl || '',
-        birth_cert_url: birthUrl || '',
-        marksheet_url: markUrl || '',
-        tc_url: tcUrl || '',
-        aadhaar_url: aadUrl || '',
-        application_number: appNumber,
-        academic_year: academicYear,
-        status: 'Pending'
-      }).select().single();
-      if (error) return cors({ success: false, error: error.message }, 400);
-      return cors({ success: true, data });
-    }
+  student_name: body.student_name || '',
+  dob: body.dob || '',
+  gender: body.gender || '',
+  applying_class: body.applying_class || '',
+  blood_group: body.blood_group || '',
+  religion: body.religion || '',
+  category: body.category || '',
+  aadhaar: body.aadhaar || '',
+  nationality: body.nationality || 'Indian',
+  father_name: body.father_name || '',
+  father_occupation: body.father_occupation || '',
+  father_phone: body.father_phone || '',
+  father_email: body.father_email || '',
+  mother_name: body.mother_name || '',
+  mother_occupation: body.mother_occupation || '',
+  mother_phone: body.mother_phone || '',
+  contact_phone: body.contact_phone || '',
+  family_income: body.family_income || '',
+  previous_school: body.previous_school || '',
+  previous_class: body.previous_class || '',
+  previous_percent: body.previous_percent || '',
+  passing_year: body.passing_year || '',
+  medium: body.medium || '',
+  achievements: body.achievements || '',
+  medical: body.medical || '',
+  address: body.address || '',
+  village: body.village || '',
+  block: body.block || '',
+  district: body.district || '',
+  state: body.state || '',
+  pincode: body.pincode || '',
+  distance: body.distance || '',
+  transport: body.transport || '',
+  emergency_contact: body.emergency_contact || '',
 
+  photo_url: photoUrl || '',
+  birth_cert_url: birthUrl || '',
+  marksheet_url: markUrl || '',
+  tc_url: tcUrl || '',
+  aadhaar_url: aadUrl || '',
+
+  application_number: appNumber,
+  academic_year: academicYear,
+  status: 'Pending'
+}).select().single();
     // ── PUBLIC: Get gallery (must be before admin check) ──
     if (action === 'get_gallery' && method === 'GET') {
       const { data, error } = await db.from('ica_gallery').select('*').order('created_at', { ascending: false });
