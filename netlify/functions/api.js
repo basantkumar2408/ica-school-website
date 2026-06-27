@@ -134,6 +134,7 @@ exports.handler = async (event) => {
     }
 
     // ── PUBLIC: Submit enquiry ──
+    
     if (action === 'submit_enquiry' && method === 'POST') {
       const { parent_name, child_name, phone, class: cls, area, enquiry_type, message } = body;
       if (!parent_name || !child_name || !phone || !cls) {
@@ -152,6 +153,146 @@ exports.handler = async (event) => {
     }
 
     // ── PUBLIC: Submit admission ──
+    // ── PUBLIC: Submit enquiry ──
+    console.log("PHOTO:", body.photo_url ? body.photo_url.length : 0);
+console.log("BIRTH:", body.doc_birth_cert ? body.doc_birth_cert.length : 0);
+console.log("MARKSHEET:", body.doc_marksheet ? body.doc_marksheet.length : 0);
+    if (action === 'submit_enquiry' && method === 'POST') {
+      const { parent_name, child_name, phone, class: cls, area, enquiry_type, message } = body;
+      if (!parent_name || !child_name || !phone || !cls) {
+        return cors({ success: false, error: 'Required fields missing' }, 400);
+      }
+      if (!/^\d{10}$/.test(phone)) {
+        return cors({ success: false, error: 'Phone must be 10 digits' }, 400);
+      }
+      const { data, error } = await db.from('ica_enquiries').insert({
+        parent_name, child_name, phone, class: cls, area: area || '',
+        enquiry_type: enquiry_type || 'New Admission',
+        message: message || '', status: 'New'
+      }).select().single();
+      if (error) return cors({ success: false, error: error.message }, 400);
+      return cors({ success: true, data });
+    }
+
+    // ── PUBLIC: Submit admission ──
+    if (action === 'submit_admission' && method === 'POST') {
+      const { data: setting } = await db.from('ica_settings').select('value').eq('key', 'admission_open').maybeSingle();
+      if (!setting || setting.value !== 'true') {
+        return cors({ success: false, error: 'Admissions are currently closed.' }, 403);
+      }
+      if (!body.student_name || !body.contact_phone || !body.applying_class) {
+        return cors({ success: false, error: 'Required fields missing' }, 400);
+      }
+
+      // Get academic year setting (used for app number + folder)
+      const { data: yearSetting } = await db.from('ica_settings').select('value').eq('key', 'admission_year').maybeSingle();
+      const academicYear = (yearSetting && yearSetting.value) || String(new Date().getFullYear());
+      const yearPrefix = academicYear.split('-')[0]; // "2026-27" -> "2026"
+
+      // Generate next sequential application number for this year
+      let appNumber = '';
+      try {
+        const { data: counterRow } = await db.from('ica_app_counters').select('last_number').eq('academic_year', academicYear).maybeSingle();
+        const nextNum = (counterRow ? counterRow.last_number : 0) + 1;
+        await db.from('ica_app_counters').upsert({ academic_year: academicYear, last_number: nextNum }, { onConflict: 'academic_year' });
+        appNumber = 'ICA/' + yearPrefix + '/' + String(nextNum).padStart(4, '0');
+      } catch (e) { appNumber = 'ICA/' + yearPrefix + '/' + Date.now().toString().slice(-4); }
+
+      // Folder name for this applicant's documents
+      // Folder name for this applicant
+const folderSlug =
+  (body.student_name || 'student')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .slice(0, 40) +
+  '-' +
+  Date.now();
+
+// Upload documents to Supabase Storage
+const [photoUrl, birthUrl, markUrl, tcUrl, aadUrl] =
+  await Promise.all([
+    uploadDoc(body.photo_url, folderSlug, 'photo'),
+    uploadDoc(body.doc_birth_cert, folderSlug, 'birth_cert'),
+    uploadDoc(body.doc_marksheet, folderSlug, 'marksheet'),
+    uploadDoc(body.doc_tc, folderSlug, 'tc'),
+    uploadDoc(body.doc_aadhaar, folderSlug, 'aadhaar')
+  ]);
+
+const { data, error } = await db.from('ica_admissions').insert({
+  student_name: body.student_name || '',
+  dob: body.dob || '',
+  gender: body.gender || '',
+  applying_class: body.applying_class || '',
+  blood_group: body.blood_group || '',
+  religion: body.religion || '',
+  category: body.category || '',
+  aadhaar: body.aadhaar || '',
+  nationality: body.nationality || 'Indian',
+
+  father_name: body.father_name || '',
+  father_occupation: body.father_occupation || '',
+  father_phone: body.father_phone || '',
+  father_email: body.father_email || '',
+
+  mother_name: body.mother_name || '',
+  mother_occupation: body.mother_occupation || '',
+  mother_phone: body.mother_phone || '',
+
+  contact_phone: body.contact_phone || '',
+  family_income: body.family_income || '',
+
+  previous_school: body.previous_school || '',
+  previous_class: body.previous_class || '',
+  previous_percent: body.previous_percent || '',
+  passing_year: body.passing_year || '',
+
+  medium: body.medium || '',
+  achievements: body.achievements || '',
+  medical: body.medical || '',
+
+  address: body.address || '',
+  village: body.village || '',
+  block: body.block || '',
+  district: body.district || '',
+  state: body.state || '',
+  pincode: body.pincode || '',
+
+  distance: body.distance || '',
+  transport: body.transport || '',
+  emergency_contact: body.emergency_contact || '',
+
+  // Display text in admin panel
+  photo: photoUrl ? '[Photo Uploaded]' : '',
+  photo_url: photoUrl || '',
+
+  birth_cert_url: birthUrl || '',
+  marksheet_url: markUrl || '',
+  tc_url: tcUrl || '',
+  aadhaar_url: aadUrl || '',
+
+  application_number: appNumber,
+  academic_year: academicYear,
+  status: 'Pending'
+}).select().single();
+
+if (error) {
+  return cors({
+    success: false,
+    error: error.message
+  }, 400);
+}
+
+return cors({
+  success: true,
+  data
+});
+    // ── PUBLIC: Get gallery (must be before admin check) ──
+    if (action === 'get_gallery' && method === 'GET') {
+      const { data, error } = await db.from('ica_gallery').select('*').order('created_at', { ascending: false });
+      if (error) return cors({ success: false, error: error.message }, 400);
+      return cors({ success: true, data: data || [] });
+    }
+
     if (action === 'submit_admission' && method === 'POST') {
       const { data: setting } = await db.from('ica_settings').select('value').eq('key', 'admission_open').maybeSingle();
       if (!setting || setting.value !== 'true') {
