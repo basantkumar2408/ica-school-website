@@ -290,14 +290,7 @@ return cors({
       return cors({ success: true, data: data || [] });
     }
 
-    if (action === 'submit_admission' && method === 'POST') {
-      const { data: setting } = await db.from('ica_settings').select('value').eq('key', 'admission_open').maybeSingle();
-      if (!setting || setting.value !== 'true') {
-        return cors({ success: false, error: 'Admissions are currently closed.' }, 403);
-      }
-      if (!body.student_name || !body.contact_phone || !body.applying_class) {
-        return cors({ success: false, error: 'Required fields missing' }, 400);
-      }
+
 
       // Get academic year setting (used for app number + folder)
       const { data: yearSetting } = await db.from('ica_settings').select('value').eq('key', 'admission_year').maybeSingle();
