@@ -292,10 +292,7 @@ return cors({
 
 
 
-      // Get academic year setting (used for app number + folder)
-      const { data: yearSetting } = await db.from('ica_settings').select('value').eq('key', 'admission_year').maybeSingle();
-      const academicYear = (yearSetting && yearSetting.value) || String(new Date().getFullYear());
-      const yearPrefix = academicYear.split('-')[0]; // "2026-27" -> "2026"
+      
 
       // Generate next sequential application number for this year
       let appNumber = '';
